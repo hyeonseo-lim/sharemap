@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+</head>
+
+<body>
+
+<h2>회원 목록</h2>
+
+<table border="1">
+
+  <tr>
+    <th>ID</th>
+    <th>아이디</th>
+    <th>비밀번호</th>
+    <th>닉네임</th>
+  </tr>
+
+  <tr th:each="u : ${users}">
+    <td th:text="${u.id}"></td>
+    <td th:text="${u.username}"></td>
+    <td th:text="${u.password}"></td>
+    <td th:text="${u.nickname}"></td>
+  </tr>
+
+</table>
+
+</body>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>관리자 페이지</title>
+</head>
+
+<body>
+
+<h2>회원 목록</h2>
+
+<table border="1">
+
+  <tr>
+    <th>ID</th>
+    <th>아이디</th>
+    <th>비밀번호</th>
+    <th>닉네임</th>
+    <th>관리</th>
+  </tr>
+
+  <tr th:each="u : ${users}">
+    <td th:text="${u.id}"></td>
+    <td th:text="${u.username}"></td>
+    <td th:text="${u.password}"></td>
+    <td th:text="${u.nickname}"></td>
+
+    <!-- 🔥 삭제 버튼 추가 -->
+    <td>
+      <form th:action="@{'/admin/user/delete/' + ${u.id}}" method="post"
+            onsubmit="return confirm('정말 삭제하시겠습니까?');">
+
+        <button type="submit"
+                style="background:red;color:white;border:none;padding:5px;">
+          삭제
+        </button>
+
+      </form>
+    </td>
+
+  </tr>
+
+</table>
+
+</body>
+</html>
