@@ -209,9 +209,22 @@
         fetch('/logout', {
             method: 'POST'
         })
-        .then(() => {
+        .then(res => {
 
-            location.href = '/login';
+            if (res.ok) {
+
+                location.href = '/login';
+
+            } else {
+
+                alert("로그아웃 실패");
+
+            }
+
+        })
+        .catch(() => {
+
+            alert("서버 오류");
 
         });
 
