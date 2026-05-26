@@ -17,10 +17,6 @@
             font-family: Arial, sans-serif;
         }
 
-        /* =========================
-           메뉴
-        ========================= */
-
         #menu {
             position: absolute;
             top: 10px;
@@ -36,10 +32,6 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.12);
         }
 
-        /* =========================
-           버튼
-        ========================= */
-
         button {
             padding: 8px 10px;
             border: none;
@@ -53,8 +45,6 @@
             opacity: 0.9;
         }
 
-        /* 로그아웃 버튼 */
-
         #logoutBtn {
             width: 100%;
             background-color: #ef5d57;
@@ -66,23 +56,17 @@
             background-color: #e53935;
         }
 
-        /* 환영 문구 */
-
         #distanceBox {
             margin-bottom: 8px;
             font-size: 14px;
             font-weight: bold;
         }
 
-        /* 더보기 버튼 */
-
         #moreBtn {
             width: 100%;
             background: #f3f3f3;
             font-size: 12px;
         }
-
-        /* 버튼 줄 */
 
         .menu-row {
             display: flex;
@@ -95,8 +79,6 @@
             flex: 1;
             background: #f3f3f3;
         }
-
-        /* 입력창 */
 
         .input-row {
             display: flex;
@@ -115,8 +97,6 @@
             background: #f3f3f3;
         }
 
-        /* 지도 */
-
         #map {
             width: 100%;
             height: 100vh;
@@ -127,31 +107,19 @@
 
 <body>
 
-<!-- =========================
-     메뉴
-========================= -->
-
 <div id="menu">
-
-    <!-- 로그아웃 -->
 
     <button id="logoutBtn" onclick="logout()">
         🚪 로그아웃
     </button>
 
-    <!-- 환영 문구 -->
-
     <div id="distanceBox">
         충북대 공유지도입니다.
     </div>
 
-    <!-- 더보기 -->
-
     <button onclick="toggleMenu()" id="moreBtn">
         ☰ 더보기
     </button>
-
-    <!-- 숨겨지는 메뉴 -->
 
     <div id="extraMenu" style="display:none;">
 
@@ -166,14 +134,15 @@
             </button>
 
         </div>
+
         <div id="myUrlBox" style="
-    display:none;
-    margin-top:10px;
-    padding:10px;
-    background:#f7f7f7;
-    border-radius:8px;
-    font-size:13px;
-"></div>
+            display:none;
+            margin-top:10px;
+            padding:10px;
+            background:#f7f7f7;
+            border-radius:8px;
+            font-size:13px;
+        "></div>
 
         <div class="input-row">
 
@@ -191,19 +160,11 @@
 
 </div>
 
-<!-- =========================
-     지도
-========================= -->
-
 <div id="map"></div>
-
-<!-- Thymeleaf -->
 
 <script th:inline="javascript">
     const places = /*[[${places}]]*/ [];
 </script>
-
-<!-- 카카오맵 -->
 
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=66d015a0ab83c400b1697ae94916643a&autoload=false"></script>
 
@@ -305,7 +266,9 @@
 
         });
 
+        // =========================
         // 내 위치
+        // =========================
 
         navigator.geolocation.watchPosition(function(position) {
 
@@ -333,298 +296,335 @@
 
         });
 
+        // =========================
         // 장소 마커
+        // =========================
 
-        // 장소 마커
+        places.forEach(place => {
 
-places.forEach(place => {
+            const category =
+                (place.category || '')
+                    .trim()
+                    .replace(/\s/g, '');
 
-    const category =
-        (place.category || '')
-            .trim()
-            .replace(/\s/g, '');
+            let imageSrc =
+                "https://cdn-icons-png.flaticon.com/512/684/684908.png";
 
-    let imageSrc =
-        "https://cdn-icons-png.flaticon.com/512/684/684908.png";
+            // 카페
+            if (
+                category.includes("카페")
+                || category.includes("커피")
+            ) {
 
-    // 카페
-    if (
-        category.includes("카페")
-        || category.includes("커피")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/751/751621.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/751/751621.png";
-    }
+            // 햄버거
+            else if (
+                category.includes("햄버거")
+            ) {
 
-    // 햄버거
-    else if (
-        category.includes("햄버거")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/3075/3075977.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/3075/3075977.png";
-    }
+            // 치킨
+            else if (
+                category.includes("치킨")
+            ) {
 
-    // 치킨
-    else if (
-        category.includes("치킨")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
-    }
+            // 피자
+            else if (
+                category.includes("피자")
+            ) {
 
-    // 피자
-    else if (
-        category.includes("피자")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/3595/3595455.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/3595/3595455.png";
-    }
+            // 일식
+            else if (
+                category.includes("일식")
+            ) {
 
-    // 일식
-    else if (
-        category.includes("일식")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/5787/5787016.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/5787/5787016.png";
-    }
+            // 한식
+            else if (
+                category.includes("한식")
+            ) {
 
-    // 한식
-    else if (
-        category.includes("한식")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/2718/2718224.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/2718/2718224.png";
-    }
+            // 중식
+            else if (
+                category.includes("중식")
+            ) {
 
-    // 중식
-    else if (
-        category.includes("중식")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/2515/2515183.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/2515/2515183.png";
-    }
+            // 디저트
+            else if (
+                category.includes("디저트")
+            ) {
 
-    // 디저트
-    else if (
-        category.includes("디저트")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/3081/3081967.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/3081/3081967.png";
-    }
+            // 술집
+            else if (
+                category.includes("술")
+                || category.includes("포차")
+            ) {
 
-    // 술집
-    else if (
-        category.includes("술")
-        || category.includes("포차")
-    ) {
+                imageSrc =
+                    "https://cdn-icons-png.flaticon.com/512/2405/2405479.png";
+            }
 
-        imageSrc =
-            "https://cdn-icons-png.flaticon.com/512/2405/2405479.png";
-    }
+            const defaultImage =
+                new kakao.maps.MarkerImage(
 
-    const defaultImage =
-        new kakao.maps.MarkerImage(
+                    "https://cdn-icons-png.flaticon.com/512/149/149059.png",
 
-            "https://cdn-icons-png.flaticon.com/512/149/149059.png",
+                    new kakao.maps.Size(28, 28)
 
-            new kakao.maps.Size(28, 28)
+                );
 
-        );
+            const categoryImage =
+                new kakao.maps.MarkerImage(
 
-    const categoryImage =
-        new kakao.maps.MarkerImage(
+                    imageSrc,
 
-            imageSrc,
+                    new kakao.maps.Size(45, 45)
 
-            new kakao.maps.Size(45, 45)
+                );
 
-        );
+            const marker =
+                new kakao.maps.Marker({
 
-    const marker =
-        new kakao.maps.Marker({
+                    map: map,
 
-            map: map,
+                    position:
+                        new kakao.maps.LatLng(
+                            place.latitude,
+                            place.longitude
+                        ),
 
-            position:
-                new kakao.maps.LatLng(
-                    place.latitude,
-                    place.longitude
-                ),
+                    image: defaultImage
+                });
 
-            image: defaultImage
+            const infowindow =
+                new kakao.maps.InfoWindow({
+
+                    content: `
+
+                        <div style="
+                            padding:10px;
+                            min-width:180px;
+                        ">
+
+                            <img
+                                src="${place.imageUrl}"
+
+                                style="
+                                    width:100%;
+                                    height:120px;
+                                    object-fit:cover;
+                                    border-radius:8px;
+                                    margin-bottom:8px;
+                                "
+                            >
+
+                            <b>${place.name}</b><br>
+
+                            ${place.category}
+                            | ⭐ ${place.rating}<br><br>
+
+                            <a href="/place/${place.id}">
+                                자세히 보기
+                            </a>
+
+                        </div>
+                    `
+                });
+
+            let isOpen = false;
+
+            kakao.maps.event.addListener(marker, 'click', function () {
+
+                if (isOpen) {
+
+                    infowindow.close();
+
+                    marker.setImage(defaultImage);
+
+                    isOpen = false;
+                }
+
+                else {
+
+                    infowindow.open(map, marker);
+
+                    marker.setImage(categoryImage);
+
+                    isOpen = true;
+                }
+
+            });
+
         });
-
-    const infowindow =
-        new kakao.maps.InfoWindow({
-
-            content: `
-
-                <div style="
-                    padding:10px;
-                    min-width:180px;
-                ">
-
-                    <img
-                        src="${place.imageUrl}"
-
-                        style="
-                            width:100%;
-                            height:120px;
-                            object-fit:cover;
-                            border-radius:8px;
-                            margin-bottom:8px;
-                        "
-                    >
-
-                    <b>${place.name}</b><br>
-
-                    ${place.category}
-                    | ⭐ ${place.rating}<br><br>
-
-                    <a href="/place/${place.id}">
-                        자세히 보기
-                    </a>
-
-                </div>
-            `
-        });
-
-    let isOpen = false;
-
-    kakao.maps.event.addListener(marker, 'click', function () {
-
-        if (isOpen) {
-
-            infowindow.close();
-
-            marker.setImage(defaultImage);
-
-            isOpen = false;
-        }
-
-        else {
-
-            infowindow.open(map, marker);
-
-            marker.setImage(categoryImage);
-
-            isOpen = true;
-        }
 
     });
 
-});
-
     // =========================
     // 내 핀 보기
+    // =========================
+
     function showMyPins() {
 
-    fetch("/api/favorite")
-        .then(res => res.json())
-        .then(ids => {
+        fetch("/api/favorite")
+            .then(res => res.json())
+            .then(ids => {
 
-            console.log("favorite ids:", ids);
+                console.log("favorite ids:", ids);
 
-            if (!ids || ids.length === 0) {
-                alert("즐겨찾기가 없습니다.");
-                return;
-            }
+                if (!ids || ids.length === 0) {
 
-            const favoritePlaces = places.filter(p =>
-                ids.includes(p.id)
-            );
+                    alert("즐겨찾기가 없습니다.");
+                    return;
+                }
 
-            if (favoritePlaces.length === 0) {
-                alert("매칭되는 장소가 없습니다 (ID 불일치)");
-                return;
-            }
+                const favoritePlaces = places.filter(p =>
+                    ids.includes(p.id)
+                );
 
-            alert(
-                "📌 내 즐겨찾기\n\n" +
-                favoritePlaces.map(p => p.name).join("\n")
-            );
-        })
-        .catch(err => {
-            console.error(err);
-            alert("서버 오류");
-        });
-}
-// =========================
+                if (favoritePlaces.length === 0) {
+
+                    alert("매칭되는 장소가 없습니다 (ID 불일치)");
+                    return;
+                }
+
+                alert(
+                    "📌 내 즐겨찾기\n\n" +
+                    favoritePlaces.map(p => p.name).join("\n")
+                );
+
+            })
+            .catch(err => {
+
+                console.error(err);
+                alert("서버 오류");
+
+            });
+
+    }
+
+    // =========================
     // 내 URL 보기
     // =========================
-function showMyUrl() {
 
-    fetch("/api/share/my")
-        .then(res => res.json())
-        .then(data => {
+    function showMyUrl() {
 
-            if (data.message) {
-                alert(data.message);
-                return;
-            }
+        fetch("/api/share/my")
+            .then(res => res.json())
+            .then(data => {
 
-            if (!data.url) {
-                alert("URL 생성 실패");
-                return;
-            }
+                if (data.message) {
 
-            // 🔥 핵심 수정 부분
-            const prettyUrl = data.url.replace("/api/", "");
+                    alert(data.message);
+                    return;
+                }
 
-            alert("🔗 내 공유 URL\n\n" + prettyUrl);
-        })
-        .catch(() => {
-            alert("서버 오류");
-        });
-}
+                if (!data.url) {
 
+                    alert("URL 생성 실패");
+                    return;
+                }
 
+                const prettyUrl =
+                    data.url.replace("/api/", "");
 
-function loadOtherList() {
+                alert(
+                    "🔗 내 공유 URL\n\n" + prettyUrl
+                );
 
-    let input = document.getElementById("otherUrlInput").value.trim();
+            })
+            .catch(() => {
 
-    // 🔥 핵심: share/ 제거
-    let key = input;
+                alert("서버 오류");
 
-    if (key.startsWith("share/")) {
-        key = key.replace("share/", "");
+            });
+
     }
 
-    if (!key) {
-        alert("URL 입력하세요");
-        return;
+    // =========================
+    // 다른 사람 URL 불러오기
+    // =========================
+
+    function loadOtherList() {
+
+        let input =
+            document.getElementById("otherUrlInput")
+                .value
+                .trim();
+
+        let key = input;
+
+        if (key.startsWith("share/")) {
+
+            key =
+                key.replace("share/", "");
+        }
+
+        if (!key) {
+
+            alert("URL 입력하세요");
+            return;
+        }
+
+        fetch(`/api/share/${key}`)
+            .then(res => res.json())
+            .then(data => {
+
+                if (data.message) {
+
+                    alert(data.message);
+                    return;
+                }
+
+                const ids =
+                    data.placeIds;
+
+                const names = places
+                    .filter(p => ids.includes(p.id))
+                    .map(p => p.name);
+
+                alert(
+                    "📌 즐겨찾기\n\n" +
+                    names.join("\n")
+                );
+
+            })
+            .catch(() => {
+
+                alert("서버 오류");
+
+            });
+
     }
 
-    fetch(`/api/share/${key}`)
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.message) {
-                alert(data.message);
-                return;
-            }
-
-            const ids = data.placeIds;
-
-            const names = places
-                .filter(p => ids.includes(p.id))
-                .map(p => p.name);
-
-            alert("📌 즐겨찾기\n\n" + names.join("\n"));
-        })
-        .catch(() => {
-            alert("서버 오류");
-        });
-}
 </script>
 
 </body>
