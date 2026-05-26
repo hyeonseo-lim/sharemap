@@ -13,11 +13,21 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
+                )
+
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                 );
 
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+        http.headers(headers ->
+                headers.frameOptions(frame -> frame.disable())
+        );
 
         return http.build();
     }
