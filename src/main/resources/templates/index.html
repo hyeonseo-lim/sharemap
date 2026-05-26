@@ -335,32 +335,193 @@
 
         // 장소 마커
 
-       sharemap-production-fc72.up.railway.app
+        // 장소 마커
 
-            let isOpen = false;
+places.forEach(place => {
 
-            kakao.maps.event.addListener(
-                marker,
-                'click',
-                function () {
+    const category =
+        (place.category || '')
+            .trim()
+            .replace(/\s/g, '');
 
-                    if (isOpen) {
+    let imageSrc =
+        "https://cdn-icons-png.flaticon.com/512/684/684908.png";
 
-                        infowindow.close();
-                        isOpen = false;
+    // 카페
+    if (
+        category.includes("카페")
+        || category.includes("커피")
+    ) {
 
-                    } else {
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/751/751621.png";
+    }
 
-                        infowindow.open(map, marker);
-                        isOpen = true;
+    // 햄버거
+    else if (
+        category.includes("햄버거")
+    ) {
 
-                    }
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/3075/3075977.png";
+    }
 
-                });
+    // 치킨
+    else if (
+        category.includes("치킨")
+    ) {
 
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
+    }
+
+    // 피자
+    else if (
+        category.includes("피자")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/3595/3595455.png";
+    }
+
+    // 일식
+    else if (
+        category.includes("일식")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/5787/5787016.png";
+    }
+
+    // 한식
+    else if (
+        category.includes("한식")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/2718/2718224.png";
+    }
+
+    // 중식
+    else if (
+        category.includes("중식")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/2515/2515183.png";
+    }
+
+    // 디저트
+    else if (
+        category.includes("디저트")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/3081/3081967.png";
+    }
+
+    // 술집
+    else if (
+        category.includes("술")
+        || category.includes("포차")
+    ) {
+
+        imageSrc =
+            "https://cdn-icons-png.flaticon.com/512/2405/2405479.png";
+    }
+
+    const defaultImage =
+        new kakao.maps.MarkerImage(
+
+            "https://cdn-icons-png.flaticon.com/512/149/149059.png",
+
+            new kakao.maps.Size(28, 28)
+
+        );
+
+    const categoryImage =
+        new kakao.maps.MarkerImage(
+
+            imageSrc,
+
+            new kakao.maps.Size(45, 45)
+
+        );
+
+    const marker =
+        new kakao.maps.Marker({
+
+            map: map,
+
+            position:
+                new kakao.maps.LatLng(
+                    place.latitude,
+                    place.longitude
+                ),
+
+            image: defaultImage
         });
 
+    const infowindow =
+        new kakao.maps.InfoWindow({
+
+            content: `
+
+                <div style="
+                    padding:10px;
+                    min-width:180px;
+                ">
+
+                    <img
+                        src="${place.imageUrl}"
+
+                        style="
+                            width:100%;
+                            height:120px;
+                            object-fit:cover;
+                            border-radius:8px;
+                            margin-bottom:8px;
+                        "
+                    >
+
+                    <b>${place.name}</b><br>
+
+                    ${place.category}
+                    | ⭐ ${place.rating}<br><br>
+
+                    <a href="/place/${place.id}">
+                        자세히 보기
+                    </a>
+
+                </div>
+            `
+        });
+
+    let isOpen = false;
+
+    kakao.maps.event.addListener(marker, 'click', function () {
+
+        if (isOpen) {
+
+            infowindow.close();
+
+            marker.setImage(defaultImage);
+
+            isOpen = false;
+        }
+
+        else {
+
+            infowindow.open(map, marker);
+
+            marker.setImage(categoryImage);
+
+            isOpen = true;
+        }
+
     });
+
+});
 
     // =========================
     // 내 핀 보기
