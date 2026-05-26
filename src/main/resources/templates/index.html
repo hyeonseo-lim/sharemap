@@ -206,29 +206,21 @@
 
     function logout() {
 
-        fetch('/logout', {
-            method: 'POST'
-        })
-        .then(res => {
+    fetch('/api/auth/logout', {
+        method: 'POST'
+    })
+    .then(() => {
 
-            if (res.ok) {
+        location.href = '/login';
 
-                location.href = '/login';
+    })
+    .catch(() => {
 
-            } else {
+        alert("로그아웃 실패");
 
-                alert("로그아웃 실패");
+    });
 
-            }
-
-        })
-        .catch(() => {
-
-            alert("서버 오류");
-
-        });
-
-    }
+}
 
     // =========================
     // 더보기 메뉴
