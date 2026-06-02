@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Optional;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -24,30 +24,20 @@ public class LoginController {
     }
 
     // =========================
-    // 로그인 처리 (핵심)
+    // (선택) 폼 로그인도 지원
     // =========================
     @PostMapping("/login")
-    public String loginProcess(String username,
-                               String password,
+    public String loginProcess(@RequestParam String username,
+                               @RequestParam String password,
                                HttpSession session) {
 
-        Optional<User> optionalUser =
-                userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByUsername(username);
 
-        // ❗ 유저 없음
-        if (optionalUser.isEmpty()) {
-            return "login";
+        if (user.isEmpty() || !user.get().getPassword().equals(password)) {
+            return "redirect:/login?error";
         }
 
-        User user = optionalUser.get();
-
-        // ❗ 비밀번호 틀림
-        if (!user.getPassword().equals(password)) {
-            return "login";
-        }
-
-        // 🔥 핵심 (이게 있어야 즐겨찾기 됨)
-        session.setAttribute("user", user);
+        session.setAttribute("user", user.get());
 
         return "redirect:/";
     }

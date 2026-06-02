@@ -29,11 +29,11 @@ public class AuthController {
                     session.setAttribute("user", u);
                     return "로그인 성공";
                 })
-                .orElse("아이디 또는 비번 틀림");
+                .orElse("로그인 실패");
     }
 
     // =========================
-    // 회원가입 (추가)
+    // 회원가입
     // =========================
     @PostMapping("/register")
     public String register(@RequestBody User user) {
@@ -43,15 +43,14 @@ public class AuthController {
         }
 
         userRepository.save(user);
-
         return "회원가입 성공";
     }
 
     // =========================
-    // 로그인 확인
+    // 로그인 상태 확인
     // =========================
     @GetMapping("/me")
-    public Object me(HttpSession session) {
+    public Map<String, Object> me(HttpSession session) {
 
         User user = (User) session.getAttribute("user");
 
@@ -65,14 +64,13 @@ public class AuthController {
                 "nickname", user.getNickname()
         );
     }
+
     // =========================
-// 로그아웃
-// =========================
+    // 로그아웃
+    // =========================
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-
         session.invalidate();
-
         return "ok";
     }
 }

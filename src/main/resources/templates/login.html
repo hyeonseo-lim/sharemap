@@ -5,7 +5,6 @@
     <title>충북대 공유지도 - 로그인</title>
 
     <style>
-
         * {
             margin: 0;
             padding: 0;
@@ -53,8 +52,6 @@
             cursor: pointer;
             font-weight: bold;
             color: #aaa;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
         }
 
         .tab.active {
@@ -68,12 +65,6 @@
             margin-bottom: 12px;
             border: 1px solid #ddd;
             border-radius: 10px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: #FFE812;
         }
 
         button {
@@ -82,20 +73,14 @@
             background-color: #FFE812;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #f5d800;
         }
 
         #message {
             margin-top: 15px;
             font-size: 13px;
         }
-
     </style>
 
 </head>
@@ -105,43 +90,26 @@
 <div class="container">
 
     <h1>🗺️ 충북대 공유지도</h1>
-
     <p class="subtitle">로그인 후 지도를 이용할 수 있어요</p>
 
-    <!-- 탭 -->
     <div class="tabs">
-
-        <div class="tab active" onclick="showTab('login', this)">
-            로그인
-        </div>
-
-        <div class="tab" onclick="showTab('register', this)">
-            회원가입
-        </div>
-
+        <div class="tab active" onclick="showTab('login', this)">로그인</div>
+        <div class="tab" onclick="showTab('register', this)">회원가입</div>
     </div>
 
-    <!-- 로그인 폼 -->
+    <!-- 로그인 -->
     <div id="loginForm">
-
         <input type="text" id="loginUsername" placeholder="아이디">
         <input type="password" id="loginPassword" placeholder="비밀번호">
-
         <button onclick="login()">로그인</button>
-
     </div>
 
-    <!-- 회원가입 폼 -->
+    <!-- 회원가입 -->
     <div id="registerForm" style="display:none;">
-
         <input type="text" id="regUsername" placeholder="아이디">
         <input type="password" id="regPassword" placeholder="비밀번호">
-
-        <!-- ✅ 닉네임 추가 -->
         <input type="text" id="regNickname" placeholder="닉네임">
-
         <button onclick="register()">회원가입</button>
-
     </div>
 
     <div id="message"></div>
@@ -150,7 +118,9 @@
 
 <script>
 
-    // 탭 전환
+    // =========================
+    // TAB
+    // =========================
     function showTab(tab, element) {
 
         document.querySelectorAll('.tab')
@@ -167,128 +137,72 @@
         document.getElementById('message').textContent = '';
     }
 
-    // 로그인
+    // =========================
+    // LOGIN
+    // =========================
     function login() {
 
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
 
-        fetch('/api/auth/login', {
-
-            method: 'POST',
+        fetch("/api/auth/login", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 username,
                 password
             })
-
         })
-        .then(res => res.text())
-        .then(msg => {
+        .then(async res => {
 
-            if (msg === '로그인 성공') {
-                location.href = '/';
-            } else {
-                document.getElementById('message').style.color = '#e53935';
-                document.getElementById('message').textContent = '❌ ' + msg;
+            const text = await res.text();
+
+            if (!res.ok) {
+                throw new Error(text || "로그인 실패");
             }
 
-        });
+            return text;
+        })
+        .then(msg => {
 
+            if (msg === "로그인 성공") {
+                window.location.href = "/";
+            } else {
+                document.getElementById("message").style.color = "red";
+                document.getElementById("message").innerText = msg;
+            }
+        })
+        .catch(err => {
+
+            document.getElementById("message").style.color = "red";
+            document.getElementById("message").innerText = err.message;
+        });
     }
 
-    // 회원가입
+    // =========================
+    // REGISTER
+    // =========================
     function register() {
 
-        const username = document.getElementById('regUsername').value;
-        const password = document.getElementById('regPassword').value;
-        const nickname = document.getElementById('regNickname').value;
-
-        fetch('/api/auth/register', {
-
-            method: 'POST',
+        fetch("/api/auth/register", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                username,
-                password,
-                nickname
+                username: document.getElementById("regUsername").value,
+                password: document.getElementById("regPassword").value,
+                nickname: document.getElementById("regNickname").value
             })
-
         })
         .then(res => res.text())
         .then(msg => {
 
-            document.getElementById('message').style.color = '#43a047';
-            document.getElementById('message').textContent =
-                '✅ ' + msg + ' 로그인해주세요!';
-
+            document.getElementById("message").style.color = "green";
+            document.getElementById("message").innerText = msg;
         });
-
-    }
-
-    // =========================
-    // 내 핀 보이기
-    // =========================
-
-   function showMyPins() {
-
-    fetch("/api/favorite")
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.length === 0) {
-                alert("즐겨찾기가 없습니다.");
-                return;
-            }
-
-            const favoritePlaces = places.filter(place =>
-                data.includes(place.id)
-            );
-
-            alert(
-                "내 즐겨찾기:\n\n"
-                + favoritePlaces.map(p => p.name).join("\n")
-            );
-
-        });
-
-}
-
-    // =========================
-    // 내 URL 표시
-    // =========================
-
-    function showMyUrl() {
-        fetch("/api/list/my")
-            .then(res => res.json())
-            .then(data => {
-                if (data.listUrl) {
-                    alert("내 리스트 URL: " + data.listUrl);
-                } else {
-                    alert(data.message);
-                }
-            });
-    }
-
-    // =========================
-    // 다른 사용자 URL 입력
-    // =========================
-
-    function loadOtherList() {
-        const urlKey = document.getElementById("otherUrlInput").value;
-        fetch(`/api/list/${urlKey}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.items) {
-                    alert("다른 사용자 리스트:\n" + data.items.join("\n"));
-                } else {
-                    alert(data.message);
-                }
-            });
     }
 
 </script>

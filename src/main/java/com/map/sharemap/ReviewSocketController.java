@@ -11,13 +11,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewSocketController {
 
-    private final SimpMessagingTemplate template;
     private final ReviewRepository reviewRepository;
     private final PlaceService placeService;
+    private final SimpMessagingTemplate template;
 
-    // =========================
-    // 리뷰 추가
-    // =========================
     @MessageMapping("/review/add")
     public void add(ReviewDto dto) {
 
@@ -35,14 +32,10 @@ public class ReviewSocketController {
         broadcast(place.getId());
     }
 
-    // =========================
-    // 리뷰 수정
-    // =========================
     @MessageMapping("/review/edit")
     public void edit(ReviewDto dto) {
 
-        Review review = reviewRepository.findById(dto.getId())
-                .orElseThrow();
+        Review review = reviewRepository.findById(dto.getId()).orElseThrow();
 
         review.setStar(dto.getStar());
         review.setContent(dto.getContent());
@@ -52,14 +45,10 @@ public class ReviewSocketController {
         broadcast(review.getPlace().getId());
     }
 
-    // =========================
-    // 리뷰 삭제
-    // =========================
     @MessageMapping("/review/delete")
     public void delete(ReviewDto dto) {
 
-        Review review = reviewRepository.findById(dto.getId())
-                .orElseThrow();
+        Review review = reviewRepository.findById(dto.getId()).orElseThrow();
 
         Long placeId = review.getPlace().getId();
 
@@ -68,14 +57,11 @@ public class ReviewSocketController {
         broadcast(placeId);
     }
 
-    // =========================
-    // 공통 브로드캐스트
-    // =========================
     private void broadcast(Long placeId) {
 
-        List<Review> reviews = reviewRepository.findByPlaceId(placeId);
+        List<Review> list = reviewRepository.findByPlaceId(placeId);
 
-        double avg = reviews.stream()
+        double avg = list.stream()
                 .mapToInt(Review::getStar)
                 .average()
                 .orElse(0);
@@ -84,6 +70,7 @@ public class ReviewSocketController {
         place.setRating(Math.round(avg * 10.0) / 10.0);
         placeService.save(place);
 
-        template.convertAndSend("/topic/review/" + placeId, reviews);
+        template.convertAndSend("/topic/review/" + placeId, list);
+        template.convertAndSend("/topic/rating/" + placeId, place.getRating());
     }
 }

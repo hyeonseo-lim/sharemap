@@ -3,82 +3,94 @@
 
 <head>
   <meta charset="UTF-8">
-  <title th:text="${place.name}">장소 정보</title>
+  <title th:text="${place.name}">Place</title>
 
   <style>
-    body {
-        font-family: sans-serif;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-    }
+    body { font-family:sans-serif; max-width:600px; margin:0 auto; padding:20px; }
 
     .back-btn {
-        display: inline-block;
-        margin-bottom: 20px;
-        padding: 10px 15px;
-        background: #4CAF50;
-        color: white;
-        text-decoration: none;
-        border-radius: 10px;
+      padding:10px 15px;
+      background:#4CAF50;
+      color:white;
+      border-radius:10px;
+      text-decoration:none;
     }
 
     .rating {
-        color: #f5a623;
-        font-size: 18px;
-        margin-bottom: 15px;
+      font-size:18px;
+      margin:15px 0;
+      color:#f5a623;
+    }
+
+    .place-img {
+      width:100%;
+      height:200px;
+      object-fit:cover;
+      border-radius:12px;
+      margin-top:15px;
+    }
+
+    .review-box {
+      background:#f9f9f9;
+      padding:15px;
+      border-radius:10px;
     }
 
     .review-box textarea {
-        width: 100%;
-        height: 100px;
-        padding: 10px;
-        border-radius: 10px;
+      width:100%;
+      height:80px;
+      margin-top:10px;
     }
 
     .review-btn {
-        margin-top: 10px;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 10px;
-        background: #4CAF50;
-        color: white;
-        cursor: pointer;
-    }
-
-    #favButton {
-        margin: 10px 0;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 10px;
-        background: gold;
-        cursor: pointer;
-        font-weight: bold;
+      margin-top:10px;
+      padding:10px 20px;
+      background:#4CAF50;
+      color:white;
+      border:none;
+      border-radius:10px;
     }
 
     .review-item {
-        margin-top: 15px;
-        padding: 15px;
-        background: #f5f5f5;
-        border-radius: 10px;
+      margin-top:15px;
+      padding:15px;
+      background:#f5f5f5;
+      border-radius:10px;
+    }
+
+    .review-item button {
+      margin-right:5px;
+      padding:5px 10px;
+      border:none;
+      border-radius:6px;
+      cursor:pointer;
     }
   </style>
-
 </head>
 
 <body>
 
-<a href="/" class="back-btn">← 지도로 돌아가기</a>
+<a class="back-btn" href="/">← back</a>
 
 <h2 th:text="${place.name}"></h2>
 
-<button id="favButton" onclick="toggleFavorite()">
-  ⭐ 즐겨찾기
-</button>
 
 <img th:if="${place.imageUrl != null}"
-     th:src="${place.imageUrl}"
-     style="width:100%; height:200px; object-fit:cover; border-radius:12px;">
+     th:src="@{${place.imageUrl}}"
+     class="place-img">
+
+<div style="
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    line-height: 1.8;
+">
+  <div>🏷️ <b>카테고리</b> : <span th:text="${place.category}"></span></div>
+  <div>📞 <b>전화번호</b> : <span th:text="${place.phone}"></span></div>
+  <div>📍 <b>주소</b> : <span th:text="${place.address}"></span></div>
+  <div>⏰ <b>영업시간</b> : <span th:text="${place.businessHours}"></span></div>
+</div>
 
 <div class="rating" id="ratingBox">
   ⭐ [[${place.rating}]] / 5.0
@@ -86,7 +98,6 @@
 
 <hr>
 
-<!-- 리뷰 작성 -->
 <div class="review-box">
   <h3>리뷰 작성</h3>
 
@@ -98,80 +109,36 @@
     <option value="5">5</option>
   </select>
 
-  <textarea id="content" placeholder="리뷰 작성"></textarea>
+  <textarea id="content"></textarea>
 
-  <button class="review-btn" onclick="sendReview()">
-    등록
-  </button>
+  <button class="review-btn" onclick="sendReview()">등록</button>
 </div>
 
 <hr>
 
-<!-- 리뷰 리스트 -->
-<div id="reviewList">
+<div id="reviewList"></div>
 
-  <div th:each="r : ${reviews}" class="review-item">
-
-    <b th:text="${r.nickname}"></b>
-
-    <div>⭐ <span th:text="${r.star}"></span></div>
-
-    <div th:text="${r.content}"></div>
-
-    <div th:if="${loginUser != null and loginUser.username == r.username}">
-      <button th:attr="onclick=|editReview(${r.id})|">수정</button>
-      <button th:attr="onclick=|deleteReview(${r.id})|">삭제</button>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- WebSocket -->
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 
 <script th:inline="javascript">
 
   let placeId = [[${place.id}]];
-  let loginUser = [[${loginUser != null ? loginUser.username : null}]];
-  let loginNickname = [[${loginUser != null ? loginUser.nickname : null}]];
+  let loginUser = [[${loginUser != null ? loginUser.username : ''}]];
+  let loginNickname = [[${loginUser != null ? loginUser.nickname : ''}]];
 
-  // =========================
-  // FAVORITE
-  // =========================
+  let stompClient = null;
+
   window.onload = function () {
-      initFavoriteButton();
+      connect();
+      loadReviews();
   };
 
-  function initFavoriteButton() {
-
-      fetch("/api/favorite")
+  function loadReviews() {
+      fetch("/api/review/" + placeId)
           .then(res => res.json())
-          .then(list => {
-
-              const btn = document.getElementById("favButton");
-
-              if (list.includes(Number(placeId))) {
-                  btn.innerText = "💛 즐겨찾기됨";
-              } else {
-                  btn.innerText = "⭐ 즐겨찾기";
-              }
-          });
+          .then(data => render(data));
   }
-
-  function toggleFavorite() {
-
-      fetch("/api/favorite/" + placeId, {
-          method: "POST"
-      })
-      .then(() => initFavoriteButton());
-  }
-
-  // =========================
-  // WEBSOCKET
-  // =========================
-  let stompClient = null;
 
   function connect() {
 
@@ -184,17 +151,47 @@
               render(JSON.parse(msg.body));
           });
 
+          stompClient.subscribe("/topic/rating/" + placeId, function (msg) {
+              document.getElementById("ratingBox").innerText =
+                  "⭐ " + JSON.parse(msg.body) + " / 5.0";
+          });
       });
   }
 
-  // =========================
-  // REVIEW ADD
-  // =========================
+  function render(list) {
+
+      const box = document.getElementById("reviewList");
+      box.innerHTML = "";
+
+      list.forEach(r => {
+
+          const isMine = loginUser && r.username === loginUser;
+
+          box.innerHTML += `
+            <div class="review-item">
+                <b>${r.nickname ?? 'user'}</b>
+                <div>⭐ ${r.star}</div>
+                <div>${r.content}</div>
+
+                ${isMine ? `
+                    <button onclick="editReview(${r.id})">수정</button>
+                    <button onclick="deleteReview(${r.id})">삭제</button>
+                ` : ""}
+            </div>
+          `;
+      });
+  }
+
   function sendReview() {
+
+      if (!loginUser) {
+          alert("로그인 필요");
+          return;
+      }
 
       stompClient.send("/app/review/add", {}, JSON.stringify({
           placeId: placeId,
-          star: document.getElementById("star").value,
+          star: Number(document.getElementById("star").value),
           content: document.getElementById("content").value,
           username: loginUser,
           nickname: loginNickname
@@ -203,69 +200,30 @@
       document.getElementById("content").value = "";
   }
 
-  // =========================
-  // REVIEW EDIT
-  // =========================
   function editReview(id) {
+
+      if (!loginUser) return;
 
       let star = prompt("별점 (1~5)");
       let content = prompt("내용");
 
+      if (!star || !content) return;
+
       stompClient.send("/app/review/edit", {}, JSON.stringify({
-          id: id,
-          star: star,
+          id: Number(id),
+          star: Number(star),
           content: content
       }));
   }
 
-  // =========================
-  // REVIEW DELETE
-  // =========================
   function deleteReview(id) {
 
+      if (!loginUser) return;
+
       stompClient.send("/app/review/delete", {}, JSON.stringify({
-          id: id
+          id: Number(id)
       }));
   }
-
-  // =========================
-  // RENDER
-  // =========================
-  function render(list) {
-
-      let box = document.getElementById("reviewList");
-      box.innerHTML = "";
-
-      list.forEach(r => {
-
-          let btn = "";
-
-          if (r.username === loginUser) {
-              btn = `
-                  <button onclick="editReview(${r.id})">수정</button>
-                  <button onclick="deleteReview(${r.id})">삭제</button>
-              `;
-          }
-
-          box.innerHTML += `
-              <div class="review-item">
-                  <b>${r.nickname}</b>
-                  <div>⭐ ${r.star}</div>
-                  <div>${r.content}</div>
-                  ${btn}
-              </div>
-          `;
-      });
-  }
-
-  // =========================
-  // START
-  // =========================
-  if (loginUser != null) {
-      connect();
-  }
-
-  initFavoriteButton();
 
 </script>
 

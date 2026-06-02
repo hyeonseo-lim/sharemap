@@ -16,7 +16,7 @@ public class PlaceController {
     private final ReviewRepository reviewRepository;
 
     // =========================
-    // 장소 상세 페이지 (조회만)
+    // 장소 상세 페이지
     // =========================
     @GetMapping("/place/{id}")
     public String place(
@@ -28,28 +28,10 @@ public class PlaceController {
         Place place = placeService.findById(id);
 
         model.addAttribute("place", place);
-        model.addAttribute("reviews", reviewRepository.findByPlaceId(id));
+
+        // 🔥 중요: JS fetch로만 쓰면 이건 없어도 됨 (혼선 방지)
         model.addAttribute("loginUser", session.getAttribute("user"));
 
         return "place";
-    }
-
-    // =========================
-    // 별점 업데이트 공통 메서드
-    // (WebSocket Controller에서 호출용)
-    // =========================
-    public void updatePlaceRating(Long placeId) {
-
-        Place place = placeService.findById(placeId);
-
-        double avg = reviewRepository.findByPlaceId(placeId)
-                .stream()
-                .mapToInt(Review::getStar)
-                .average()
-                .orElse(0);
-
-        place.setRating(Math.round(avg * 10.0) / 10.0);
-
-        placeService.save(place);
     }
 }

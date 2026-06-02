@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -12,11 +13,19 @@ import java.util.Map;
 @RequestMapping("/api/review")
 public class ReviewApiController {
 
-    private final PlaceService placeService;
     private final ReviewRepository reviewRepository;
+    private final PlaceService placeService;
 
     // =========================
-    // 리뷰 작성 (실시간)
+    // 1. 기존 리뷰 DB 조회 (필수)
+    // =========================
+    @GetMapping("/{placeId}")
+    public List<Review> getReviews(@PathVariable Long placeId) {
+        return reviewRepository.findByPlaceId(placeId);
+    }
+
+    // =========================
+    // 2. 리뷰 작성 (REST 방식 - fallback용)
     // =========================
     @PostMapping("/{placeId}")
     public Map<String, Object> addReview(
@@ -30,6 +39,7 @@ public class ReviewApiController {
 
         User user = (User) session.getAttribute("user");
 
+        // 로그인 체크
         if (user == null) {
             res.put("error", "login required");
             return res;
@@ -46,18 +56,20 @@ public class ReviewApiController {
 
         reviewRepository.save(review);
 
+        // 별점 업데이트
         updatePlaceRating(placeId);
 
         res.put("id", review.getId());
         res.put("star", review.getStar());
         res.put("content", review.getContent());
         res.put("nickname", review.getNickname());
+        res.put("username", review.getUsername());
 
         return res;
     }
 
     // =========================
-    // 공통: 별점 계산
+    // 3. 별점 계산 (공통 로직)
     // =========================
     private void updatePlaceRating(Long placeId) {
 
@@ -69,7 +81,7 @@ public class ReviewApiController {
                 .average()
                 .orElse(0);
 
-        place.setRating(Math.round(avg * 10) / 10.0);
+        place.setRating(Math.round(avg * 10.0) / 10.0);
 
         placeService.save(place);
     }

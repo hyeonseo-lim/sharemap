@@ -13,21 +13,11 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .anyRequest().permitAll()   // ⭐ 전부 허용
                 )
-
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                );
-
-        http.headers(headers ->
-                headers.frameOptions(frame -> frame.disable())
-        );
+                .formLogin(form -> form.disable()) // ⭐ Spring login 끔
+                .httpBasic(basic -> basic.disable());
 
         return http.build();
     }
